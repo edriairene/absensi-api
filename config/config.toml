@@ -1,0 +1,6 @@
+listen-url = "0.0.0.0"
+listen-port = 8080
+form-url = "127.0.0.1"
+form-port = 7211
+report-url = "127.0.0.1"
+report-port = 7221
