@@ -35,6 +35,7 @@ func main() {
 	router.HandleFunc("/form", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "public/form.html")
 	})
+
 	router.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "public/report.html")
 	})
@@ -46,6 +47,4 @@ func main() {
 
 	log.Printf("Server: %s", server.Addr)
 	log.Fatal(server.ListenAndServe())
-
-	fmt.Printf("Hai juga Irene\n")
 }
