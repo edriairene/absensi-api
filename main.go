@@ -1,5 +1,7 @@
 package main
 
+//go:generate go-bindata-assetfs templates/... pages/...
+
 import (
 	"fmt"
 	"absensi-api/config"
@@ -8,15 +10,36 @@ import (
 	"strconv"
 	"net/http"
 	"time"
+	"html/template"
 )
 
 var formAddress string
 var reportAddress string
 
+var templates = template.New("")
+type Model struct {
+	Title string
+}
+
+func renderTemplate(w http.ResponseWriter, tmpl string, p interface{}) {
+	err := templates.ExecuteTemplate(w, tmpl, p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func main() {
 	err := config.Parse("config/config.toml")
 	if err != nil {
 		log.Fatalf("Can't read config.toml file, %s", err)
+	}
+
+	for _,path := range AssetNames() {
+		bytes, err := Asset(path)
+		if err != nil {
+			log.Panicf("Unable to parse: path=%s, err=%s", path, err)
+		}
+		templates.New(path).Parse(string(bytes))
 	}
 
 	formAddress = fmt.Sprintf("http://%s:%d", config.APIConfig.FormURL, config.APIConfig.FormPort)
@@ -32,18 +55,26 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
+	router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "pages/login.html")
+	})
+
+	router.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "pages/register.html")
+	})
+
+
 	router.HandleFunc("/form", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "public/form.html")
+		model := Model{Title: "Form"}
+		renderTemplate(w, "pages/form.html", &model)
 	})
 
 	router.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "public/report.html")
+		http.ServeFile(w, r, "pages/report.html")
 	})
 
-	router.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("public/css/"))))
-	router.PathPrefix("/img/").Handler(http.StripPrefix("/img/", http.FileServer(http.Dir("public/img/"))))
-	router.PathPrefix("/js/").Handler(http.StripPrefix("/js/", http.FileServer(http.Dir("public/js/"))))
-	router.PathPrefix("/fonts/").Handler(http.StripPrefix("/fonts/", http.FileServer(http.Dir("public/fonts/"))))
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(assetFS())))
+
 
 	log.Printf("Server: %s", server.Addr)
 	log.Fatal(server.ListenAndServe())
