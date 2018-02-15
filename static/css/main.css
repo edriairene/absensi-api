@@ -114,13 +114,6 @@
     cursor: pointer;
 }
 
-table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-th, td {
-    padding: 15px;
-}
 
 body {
     background: #A9CAD7; /* fallback for old browsers */

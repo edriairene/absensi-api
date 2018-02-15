@@ -19,9 +19,9 @@ import (
 var templates = template.New("")
 
 type Model struct {
-	Nim int
-	Presence int
-	PresTime int64
+	Bolos int
+	Hadir int
+	Izin int
 }
 
 // Render template
@@ -103,7 +103,6 @@ func main() {
 		// Model
 		//presence := models.Presence{}
 		model := Model{}
-		var pres []Model
 
 		// Check method
 		fmt.Println("method:", r.Method)
@@ -113,35 +112,56 @@ func main() {
 		} else {
 			r.ParseForm()
 
-			// Get from database
-			fmt.Println("date", r.Form["date"])
-			layout := "2006-01-02"
-			t, err := time.Parse(layout, r.Form["date"][0])
+			// Get from form
+			fmt.Println("nim", r.Form["nim"])
 			if err != nil {
 				fmt.Println(err)
 			}
-			tStartUnix := t.Unix()
-			tEndUnix := tStartUnix + 86400;
-			fmt.Println(tStartUnix)
-			fmt.Println(tEndUnix)
+			nim := r.Form["nim"][0]
 			db, err := sql.Open("mysql", "root:@/presence")
 			if err != nil {
 				return
 			}
-			rows, err := db.Query("SELECT * FROM presence WHERE pres_time >= ? AND pres_time < ?", tStartUnix, tEndUnix)
+			rows, err := db.Query("SELECT COUNT(*) FROM presence WHERE nim = ? AND presence = ?", nim, 0)
 			if err != nil {
 				log.Fatal(err)
 			}
 			defer rows.Close()
 			for rows.Next() {
-				err := rows.Scan(&model.Nim, &model.Presence, &model.PresTime)
+				err := rows.Scan(&model.Bolos)
 				if err != nil {
 					log.Fatal(err)
 				}
-				//log.Println(model.Nim)
-				pres = append(pres, Model{Nim: model.Nim, Presence: model.Presence, PresTime: model.PresTime})
+				log.Println(model.Bolos)
+				//pres = append(pres, Model{Bolos: model.Bolos})
 			}
-			renderTemplate(w, "pages/report.html", &pres)
+			rows, err = db.Query("SELECT COUNT(*) FROM presence WHERE nim = ? AND presence = ?", nim, 1)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer rows.Close()
+			for rows.Next() {
+				err := rows.Scan(&model.Hadir)
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Println(model.Hadir)
+				//pres = append(pres, Model{Hadir: model.Hadir})
+			}
+			rows, err = db.Query("SELECT COUNT(*) FROM presence WHERE nim = ? AND presence = ?", nim, 2)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer rows.Close()
+			for rows.Next() {
+				err := rows.Scan(&model.Izin)
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Println(model.Izin)
+				//pres = append(pres, Model{Izin: model.Izin})
+			}
+			renderTemplate(w, "pages/report.html", &model)
 
 			// Refresh page
 			//http.Redirect(w, r, "localhost:8080/report", http.StatusMovedPermanently)
