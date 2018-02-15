@@ -72,13 +72,13 @@ func main() {
 	// Handle form.html
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Model
-		model := Model{}
+		var pres []Model
 
 		// Check method
 		fmt.Println("method:", r.Method)
 
 		if r.Method == "GET" {
-			renderTemplate(w, "pages/form.html", &model)
+			renderTemplate(w, "pages/form.html", &pres)
 		} else {
 			r.ParseForm()
 
@@ -91,6 +91,7 @@ func main() {
 			if err != nil {
 				fmt.Println("Can't insert to database", err)
 			}
+			//renderTemplate(w, "pages/form.html", &pres)
 
 			// Refresh page
 			http.Redirect(w, r, "localhost:8080/", http.StatusMovedPermanently)
@@ -101,7 +102,8 @@ func main() {
 	router.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
 		// Model
 		//presence := models.Presence{}
-		model := Model{13515000, 1, 1518658336}
+		model := Model{}
+		var pres []Model
 
 		// Check method
 		fmt.Println("method:", r.Method)
@@ -136,9 +138,10 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				log.Println(model.Nim)
+				//log.Println(model.Nim)
+				pres = append(pres, Model{Nim: model.Nim, Presence: model.Presence, PresTime: model.PresTime})
 			}
-			renderTemplate(w, "pages/report.html", &model)
+			renderTemplate(w, "pages/report.html", &pres)
 
 			// Refresh page
 			//http.Redirect(w, r, "localhost:8080/report", http.StatusMovedPermanently)

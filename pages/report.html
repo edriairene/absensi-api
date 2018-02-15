@@ -9,10 +9,19 @@
             <button class="btn" class="report-button" name="report-button">OK</button>
         </form>
     </div>
-    {{.}}
-    {{range .}}
-        <p id="text-date">{{ .Nim }}</p>
-    {{end}}
+    <table>
+        <tr>
+            <th> NIM </th>
+            <th> Hadir/Tidak/Izin</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <td>{{ .Nim }}</td>
+            <td>{{ .Presence }}</td>
+        </tr>
+        {{end}}
+    </table>
+
     <div>
         <a href="/" type="button" id="button-report" class="btn">ISI PRESENSI</a>
     </div>
