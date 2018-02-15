@@ -6,8 +6,8 @@ import (
 )
 
 func TestInsertPresence(t *testing.T) {
-	nim := 13515999
-	presence := 1
+	nim := 13515038
+	presence := 0
 	err := InsertPresence(nim, presence)
 	if err != nil {
 		t.Fatal(err)

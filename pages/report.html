@@ -1,11 +1,20 @@
 {{ template "templates/header.tpl" . }}
-<div class="container-fluid title">
-    <div class="container title-wrapper">
-        <div class="row">
-            <div class="col-xs-12">
-                <span>R E P O R T</span>
-            </div>
-        </div>
+<div class="report-page">
+    <h1 class="display-4 text-center text-white">ABSENSI</h1>
+    <div class="form">
+        <form method="POST" class="report-form">
+            <label for="date">Tanggal</label>
+            <input type="date" id="date" name="date">
+            <hr />
+            <button class="btn" class="report-button" name="report-button">OK</button>
+        </form>
+    </div>
+    {{.}}
+    {{range .}}
+        <p id="text-date">{{ .Nim }}</p>
+    {{end}}
+    <div>
+        <a href="/" type="button" id="button-report" class="btn">ISI PRESENSI</a>
     </div>
 </div>
 {{ template "templates/footer.tpl" . }}
